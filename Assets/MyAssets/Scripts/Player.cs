@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -5,6 +6,7 @@ public class Player : MonoBehaviour
     [Header("Joueur")]
     [SerializeField] private float _playerSpeed = 10f;
     public float PlayerSpeed { get => _playerSpeed; set { _playerSpeed = value; } }
+    [SerializeField] private int _playerHP = 3;
     [SerializeField] private float _moveMaxHeight = 0f;
 
     [Header("Laser")]
@@ -38,7 +40,21 @@ public class Player : MonoBehaviour
         _minY = camera.ViewportToWorldPoint(new Vector3(0, 0, 0)).y + halfPlayerHeight;
         _maxY = _moveMaxHeight - halfPlayerHeight;
 
-        
+        GameManager.Instance.OnEnemyDestroyed += Instance_OnEnemyDestroy;
+    }
+
+    private void Instance_OnEnemyDestroy(object sender, GameManager.OnEnemyDestroyedEventArgs e)
+    {
+        if(e.DestroyedGameObjectTag == "Player")
+        {
+            _playerHP--;
+            if (_playerHP <= 0) {
+                Destroy(gameObject);
+                Debug.Log("Fin de partie!!!");
+                SpawnManager spawnManager = FindAnyObjectByType<SpawnManager>();
+                spawnManager.IsSpawning = false;
+            }
+        }
     }
 
 
