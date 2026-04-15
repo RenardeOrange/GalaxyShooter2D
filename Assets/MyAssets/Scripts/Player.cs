@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float _playerSpeed = 10f;
     public float PlayerSpeed { get => _playerSpeed; set { _playerSpeed = value; } }
     [SerializeField] private int _playerHP = 3;
+    public int PlayerHP { get => _playerHP; set { _playerHP = value; } }
     [SerializeField] private float _moveMaxHeight = 0f;
 
     [Header("Laser")]
@@ -19,6 +20,13 @@ public class Player : MonoBehaviour
 
     private float _minX, _maxX, _minY, _maxY;
     private SpriteRenderer _spriteRenderer;
+
+    private Animator _anim;
+
+    private void Awake()
+    {
+        GameManager.Instance.OnEnemyDestroyed += Instance_OnEnemyDestroy;
+    }
 
     void Start()
     {
@@ -40,7 +48,7 @@ public class Player : MonoBehaviour
         _minY = camera.ViewportToWorldPoint(new Vector3(0, 0, 0)).y + halfPlayerHeight;
         _maxY = _moveMaxHeight - halfPlayerHeight;
 
-        GameManager.Instance.OnEnemyDestroyed += Instance_OnEnemyDestroy;
+        _anim = GetComponent<Animator>();
     }
 
     private void Instance_OnEnemyDestroy(object sender, GameManager.OnEnemyDestroyedEventArgs e)
@@ -53,6 +61,7 @@ public class Player : MonoBehaviour
                 Debug.Log("Fin de partie!!!");
                 SpawnManager spawnManager = FindAnyObjectByType<SpawnManager>();
                 spawnManager.IsSpawning = false;
+                GameManager.Instance.EndGame();
             }
         }
     }
@@ -83,6 +92,22 @@ public class Player : MonoBehaviour
 
         transform.Translate(direction2D * Time.deltaTime * _playerSpeed);
 
+        if(direction2D.x < 0f)
+        {
+            _anim.SetBool("TurnLeft", true);
+            _anim.SetBool("TurnRight", false);
+        }
+        else if (direction2D.x > 0f)
+        {
+            _anim.SetBool("TurnLeft", false);
+            _anim.SetBool("TurnRight", true);
+        }
+        else
+        {
+            _anim.SetBool("TurnLeft", false);
+            _anim.SetBool("TurnRight", false);
+        }
+
         float clampedX = Mathf.Clamp(transform.position.x, _minX, _maxX);
         float clampedY = Mathf.Clamp(transform.position.y, _minY, _maxY);
 
@@ -101,6 +126,8 @@ public class Player : MonoBehaviour
 
     private void OnDestroy()
     {
+        GameManager.Instance.OnEnemyDestroyed -= Instance_OnEnemyDestroy;
+
         _inputSystemActions.Player.Disable();
         //_inputSystemActions.Player.Attack.performed -= Attack_performed;
         _inputSystemActions.Player.Attack.started -= _ => _isFiring = true;

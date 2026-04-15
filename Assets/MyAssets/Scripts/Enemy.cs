@@ -4,6 +4,7 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] private float _enemySpeed = 4.0f;
     [SerializeField] private int _enemyPoints = 100;
+    [SerializeField] private GameObject _explosion;
 
     private SpriteRenderer _spriteRenderer;
     private float _halfSpriteWidth;
@@ -45,5 +46,6 @@ public class Enemy : MonoBehaviour
             Destroy(collision.gameObject);
         }
         Destroy(gameObject);
+        Instantiate(_explosion, transform.position, Quaternion.identity);
     }
 }

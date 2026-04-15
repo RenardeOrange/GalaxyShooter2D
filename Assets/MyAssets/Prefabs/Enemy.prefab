@@ -108,6 +108,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   _enemySpeed: 4
   _enemyPoints: 100
+  _explosion: {fileID: 3145430846964684592, guid: be665a80dfc66ac49bc6e77778df59b4, type: 3}
 --- !u!61 &7978047748956123167
 BoxCollider2D:
   m_ObjectHideFlags: 0
